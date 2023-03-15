@@ -11,62 +11,54 @@ namespace Lab3.SortingAlgorithms
     public class BucketSort : ISortableInt
     {
         /// <summary>
-        /// Sort given integers using bucket sort with merge sort as sub sort.
+        /// Sort given integers using bucket sort 
         /// </summary>
         public int[] Sort(int[] array)
         {
-            int bucketSize = array.Length;
-
-            if (bucketSize < 0 || bucketSize > array.Length)
+            if (array == null || array.Length <= 1)
             {
-                throw new Exception("Invalid bucket size.");
+                return array;
             }
-
-            var buckets = new Dictionary<int, List<int>>();
-
-            int i;
-            for (i = 0; i < array.Length; i++)
+            int maxValue = array[0];
+            int minValue = array[0];
+            for (int i = 1; i < array.Length; i++)
             {
-                if (bucketSize == 0)
+                if (array[i] > maxValue)
                 {
-                    continue;
+                    maxValue = array[i];
                 }
-
-                var bucketIndex = array[i] / bucketSize;
-
-                if (!buckets.ContainsKey(bucketIndex))
+                if (array[i] < minValue)
                 {
-                    buckets.Add(bucketIndex, new List<int>());
+                    minValue = array[i];
                 }
-
-                buckets[bucketIndex].Add(array[i]);
             }
-
-            i = 0;
-            var bucketKeys = new int[buckets.Count];
-            foreach (var bucket in buckets.ToList())
+            LinkedList<int>[] bucket = new LinkedList<int>[maxValue - minValue + 1];
+            for (int i = 0; i < array.Length; i++)
             {
-                var bucketsArray = Sort(bucket.Value.ToArray());
-                buckets[bucket.Key] = new List<int>(bucketsArray.AsEnumerable());
-
-                bucketKeys[i] = bucket.Key;
-                i++;
+                if (bucket[array[i] - minValue] == null)
+                {
+                    bucket[array[i] - minValue] = new LinkedList<int>();
+                }
+                bucket[array[i] - minValue].AddLast(array[i]);
             }
+            var index = 0;
 
-            bucketKeys = Sort(bucketKeys);
-
-            var result = new int[array.Length];
-
-            i = 0;
-            foreach (var bucketKey in bucketKeys)
+            for (int i = 0; i < bucket.Length; i++)
             {
-                var bucket = buckets[bucketKey];
-                Array.Copy(bucket.ToArray(), 0, result, i, bucket.Count);
-                i += bucket.Count;
+                if (bucket[i] != null)
+                {
+                    LinkedListNode<int> node = bucket[i].First;
+                    while (node != null)
+                    {
+                        array[index] = node.Value;
+                        node = node.Next;
+                        index++;
+                    }
+                }
             }
 
-            return result;
+            return array;
         }
-    }
 
+    }
 }
